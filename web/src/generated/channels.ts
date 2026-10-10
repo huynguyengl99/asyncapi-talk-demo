@@ -10,8 +10,18 @@ import type {
   RoomNotificationMessage,
 } from './schemas';
 
+export type HealthToServer = PingMessage;
+export type HealthToClient = PongMessage;
+
 export type RoomChatToServer = PingMessage | RoomChatMessage;
 export type RoomChatToClient = PongMessage | RoomNotificationMessage;
+
+/** Check that the server is up */
+export const health = defineChannel<HealthToServer, HealthToClient>()({
+  name: "health",
+  address: "/ws/health",
+  heartbeat: true,
+});
 
 /** Chat with everyone in one room */
 export const roomChat = defineChannel<RoomChatToServer, RoomChatToClient>()({
@@ -21,5 +31,6 @@ export const roomChat = defineChannel<RoomChatToServer, RoomChatToClient>()({
 });
 
 export const channels = {
+  health,
   roomChat,
 } as const;

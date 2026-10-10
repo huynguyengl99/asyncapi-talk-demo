@@ -34,3 +34,10 @@ class RoomChatConsumer(AsyncJsonWebsocketConsumer):
         self.room_group = f"room_{self.room_name}"
         await self.channel_layer.group_add(self.room_group, self.channel_name)
         self.groups.append(self.room_group)
+
+
+@channel(name="health", description="Check that the server is up", tags=["ops"])
+class HealthConsumer(AsyncJsonWebsocketConsumer):
+    @ws_handler(summary="Answer a health check")
+    async def handle_health_check(self, _message: PingMessage) -> PongMessage:
+        return PongMessage()
