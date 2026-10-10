@@ -20,8 +20,8 @@ export interface RoomChatMessage {
 }
 
 export interface RoomMessagePayload {
-  message: string;
   room_name?: string | null;
+  text: string;
 }
 
 /** A chat message broadcast to everyone in the room. */

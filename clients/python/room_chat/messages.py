@@ -8,8 +8,8 @@ from ..shared.messages import PingMessage, PongMessage
 class RoomMessagePayload(BaseModel):
     """RoomMessagePayload"""
 
-    message: str
     room_name: str | None = None
+    text: str
 
 
 class RoomChatMessage(BaseModel):

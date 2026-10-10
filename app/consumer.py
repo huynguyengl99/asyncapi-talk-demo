@@ -22,7 +22,7 @@ class RoomChatConsumer(AsyncJsonWebsocketConsumer):
         await self.broadcast_message(
             RoomNotificationMessage(
                 payload=RoomMessagePayload(
-                    message=message.payload.message,
+                    text=message.payload.text,
                     room_name=self.room_name,
                 )
             ),

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class RoomMessagePayload(BaseModel):
-    message: str
+    text: str
     room_name: str | None = None
 
 
