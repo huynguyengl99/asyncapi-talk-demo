@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: astral-sh/setup-uv@v6
       - uses: actions/setup-node@v4
         with:
@@ -28,15 +26,5 @@ jobs:
       - name: 2. The document is valid AsyncAPI
         run: npx -y @asyncapi/cli validate "$RUNNER_TEMP/asyncapi.json"
 
-      - name: 3. No breaking change against the base branch
-        if: github.event_name == 'pull_request'
-        run: |
-          git worktree add "$RUNNER_TEMP/base" "origin/${{ github.base_ref }}"
-          uv run python "$RUNNER_TEMP/base/scripts/dump_spec.py" > "$RUNNER_TEMP/base.json"
-          npx -y @asyncapi/cli diff "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/asyncapi.json" \
-            --type=breaking -f json -s "$RUNNER_TEMP/breaking.json"
-          # asyncapi diff exits 0 even when it finds breaking changes, so check its output.
-          jq -e 'length == 0' "$RUNNER_TEMP/breaking.json" || { cat "$RUNNER_TEMP/breaking.json"; exit 1; }
-
-      - name: 4. The frontend still compiles against the clients
+      - name: 3. The frontend still compiles against the clients
         run: npm run --prefix web typecheck

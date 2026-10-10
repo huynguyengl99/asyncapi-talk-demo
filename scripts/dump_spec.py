@@ -1,6 +1,6 @@
 """Print the AsyncAPI document for the app, without starting a server.
 
-CI uses this to build the document for two commits and compare them.
+CI has no running app, so it uses this to build the document from the code.
 
     uv run python scripts/dump_spec.py > /tmp/asyncapi.json
 """

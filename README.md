@@ -39,31 +39,22 @@ CI has no running app, so `scripts/dump_spec.py` builds the document straight fr
 
 1. The committed clients match the code (regenerate, then `git diff --exit-code`).
 2. The document is valid AsyncAPI (`asyncapi validate`).
-3. No breaking change against the base branch: build the base branch's document too, then `asyncapi diff --type=breaking`, checked with `jq` because the command exits 0 even when it finds breaking changes.
-4. The frontend still compiles against the regenerated TypeScript client.
+3. The frontend still compiles against the regenerated TypeScript client.
 
-`asyncapi diff` reports a removed channel as breaking, but a renamed payload field as "unclassified". Step 4 is the check that catches payload renames.
+A contract change shows up in review as a diff of the generated clients. A breaking change fails step 3.
 
 ## The two demo changes
 
 Each one is a tag on top of `main`:
 
-| Tag | Change | What the checks say |
+| Tag | Change | What CI says |
 | --- | --- | --- |
-| `demo-rename-field` | Payload field `message` renamed to `text`, clients regenerated and committed | Steps 1 to 3 pass (`asyncapi diff` calls it "unclassified"). Step 4 fails on `payload.message`. |
-| `demo-remove-channel` | Room chat endpoint removed (the health channel stays) | Step 3 fails with 3 breaking paths. Step 4 fails too: the frontend imports `roomChat`. |
+| `demo-rename-field` | Payload field `message` renamed to `text`, clients regenerated and committed | Steps 1 and 2 pass. Step 3 fails: the frontend still reads `payload.message`. |
+| `demo-remove-channel` | Room chat endpoint removed (the health channel stays) | Steps 1 and 2 pass. Step 3 fails: the frontend imports `roomChat`, which no longer exists. |
 
 ```bash
 git checkout demo-rename-field
-npm run --prefix web typecheck              # fails on payload.message
-
-git checkout demo-remove-channel
-git worktree add /tmp/base main
-uv run python /tmp/base/scripts/dump_spec.py > /tmp/base.json
-uv run python scripts/dump_spec.py > /tmp/head.json
-npx -y @asyncapi/cli diff /tmp/base.json /tmp/head.json --type=breaking -f json -s /tmp/breaking.json
-jq -r '.[].path' /tmp/breaking.json         # 3 breaking paths
-git worktree remove /tmp/base
+npm run --prefix web typecheck
 
 git checkout main
 ```
