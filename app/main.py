@@ -4,7 +4,7 @@ from fast_channels.layers import InMemoryChannelLayer, has_layers, register_chan
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from .consumer import HealthConsumer, RoomChatConsumer
+from .consumer import HealthConsumer
 
 if not has_layers():
     register_channel_layer("chat", InMemoryChannelLayer())
@@ -29,6 +29,5 @@ async def asyncapi_json(request: Request) -> JSONResponse:
 
 
 ws = FastAPI()
-ws.router.add_websocket_route("/room/{room_name}", RoomChatConsumer.as_asgi())
 ws.router.add_websocket_route("/health", HealthConsumer.as_asgi())
 app.mount("/ws", ws)

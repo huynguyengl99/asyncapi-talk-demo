@@ -6,15 +6,10 @@ import { defineChannel, defineTopic } from '@chanx-js/client';
 import type {
   PingMessage,
   PongMessage,
-  RoomChatMessage,
-  RoomNotificationMessage,
 } from './schemas';
 
 export type HealthToServer = PingMessage;
 export type HealthToClient = PongMessage;
-
-export type RoomChatToServer = PingMessage | RoomChatMessage;
-export type RoomChatToClient = PongMessage | RoomNotificationMessage;
 
 /** Check that the server is up */
 export const health = defineChannel<HealthToServer, HealthToClient>()({
@@ -23,14 +18,6 @@ export const health = defineChannel<HealthToServer, HealthToClient>()({
   heartbeat: true,
 });
 
-/** Chat with everyone in one room */
-export const roomChat = defineChannel<RoomChatToServer, RoomChatToClient>()({
-  name: "room_chat",
-  address: "/ws/room/{room_name}",
-  heartbeat: true,
-});
-
 export const channels = {
   health,
-  roomChat,
 } as const;
