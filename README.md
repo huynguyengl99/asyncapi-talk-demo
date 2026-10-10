@@ -39,3 +39,24 @@ npm run --prefix web typecheck
 4. The frontend still compiles against the regenerated TypeScript client.
 
 `asyncapi diff` reports a removed channel as breaking, but a renamed payload field as "unclassified". Step 4 is the check that catches payload renames.
+
+## The two demo changes
+
+Each one is a tag on top of `main`:
+
+| Tag | Change | What the checks say |
+| --- | --- | --- |
+| `demo-rename-field` | Payload field `message` renamed to `text`, spec regenerated and committed | Steps 1 to 3 pass (`asyncapi diff` calls it "unclassified"). Step 4 fails on `payload.message`. |
+| `demo-remove-channel` | Room chat endpoint removed | Step 3 fails with 3 breaking paths. |
+
+```bash
+git checkout demo-rename-field
+npm run --prefix web gen && npm run --prefix web typecheck
+
+git checkout demo-remove-channel
+git show main:asyncapi.json > base.json
+npx -y @asyncapi/cli diff base.json asyncapi.json --type=breaking -f json -s breaking.json
+jq length breaking.json
+
+git checkout main
+```
