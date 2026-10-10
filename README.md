@@ -51,7 +51,7 @@ Each one is a tag on top of `main`:
 | Tag | Change | What the checks say |
 | --- | --- | --- |
 | `demo-rename-field` | Payload field `message` renamed to `text`, clients regenerated and committed | Steps 1 to 3 pass (`asyncapi diff` calls it "unclassified"). Step 4 fails on `payload.message`. |
-| `demo-remove-channel` | Room chat endpoint removed | Step 3 fails with 3 breaking paths. |
+| `demo-remove-channel` | Room chat endpoint removed (the health channel stays) | Step 3 fails with 3 breaking paths. Step 4 fails too: the frontend imports `roomChat`. |
 
 ```bash
 git checkout demo-rename-field
