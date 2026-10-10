@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "gen": "chanx-codegen ../asyncapi.json -o src/generated",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

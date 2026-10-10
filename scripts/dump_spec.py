@@ -1,6 +1,8 @@
 """Print the AsyncAPI document for the app, without starting a server.
 
-    uv run python scripts/dump_spec.py > asyncapi.json
+CI uses this to build the document for two commits and compare them.
+
+    uv run python scripts/dump_spec.py > /tmp/asyncapi.json
 """
 
 import json

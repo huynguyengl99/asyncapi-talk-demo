@@ -19,23 +19,24 @@ jobs:
       - run: uv sync
       - run: npm ci --prefix web
 
-      - name: 1. The committed spec matches the code
+      - name: 1. The committed clients match the code
         run: |
-          uv run python scripts/dump_spec.py > asyncapi.json
-          git diff --exit-code asyncapi.json
+          uv run python scripts/dump_spec.py > "$RUNNER_TEMP/asyncapi.json"
+          scripts/sync-clients.sh "$RUNNER_TEMP/asyncapi.json"
+          git diff --exit-code clients web/src/generated
 
-      - name: 2. The spec is valid AsyncAPI
-        run: npx -y @asyncapi/cli validate asyncapi.json
+      - name: 2. The document is valid AsyncAPI
+        run: npx -y @asyncapi/cli validate "$RUNNER_TEMP/asyncapi.json"
 
       - name: 3. No breaking change against the base branch
         if: github.event_name == 'pull_request'
         run: |
-          git show "origin/${{ github.base_ref }}:asyncapi.json" > base.json
-          npx -y @asyncapi/cli diff base.json asyncapi.json --type=breaking -f json -s breaking.json
+          git worktree add "$RUNNER_TEMP/base" "origin/${{ github.base_ref }}"
+          uv run python "$RUNNER_TEMP/base/scripts/dump_spec.py" > "$RUNNER_TEMP/base.json"
+          npx -y @asyncapi/cli diff "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/asyncapi.json" \
+            --type=breaking -f json -s "$RUNNER_TEMP/breaking.json"
           # asyncapi diff exits 0 even when it finds breaking changes, so check its output.
-          jq -e 'length == 0' breaking.json || { cat breaking.json; exit 1; }
+          jq -e 'length == 0' "$RUNNER_TEMP/breaking.json" || { cat "$RUNNER_TEMP/breaking.json"; exit 1; }
 
-      - name: 4. The frontend still compiles against the spec
-        run: |
-          npm run --prefix web gen
-          npm run --prefix web typecheck
+      - name: 4. The frontend still compiles against the clients
+        run: npm run --prefix web typecheck
