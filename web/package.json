@@ -1,0 +1,16 @@
+{
+  "name": "room-chat-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "chanx-codegen ../asyncapi.json -o src/generated",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chanx-js/client": "^0.1.2"
+  },
+  "devDependencies": {
+    "@chanx-js/codegen": "^0.1.2",
+    "typescript": "^5.6.0"
+  }
+}

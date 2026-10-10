@@ -1,0 +1,41 @@
+name: contract
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: uv sync
+      - run: npm ci --prefix web
+
+      - name: 1. The committed spec matches the code
+        run: |
+          uv run python scripts/dump_spec.py > asyncapi.json
+          git diff --exit-code asyncapi.json
+
+      - name: 2. The spec is valid AsyncAPI
+        run: npx -y @asyncapi/cli validate asyncapi.json
+
+      - name: 3. No breaking change against the base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          git show "origin/${{ github.base_ref }}:asyncapi.json" > base.json
+          npx -y @asyncapi/cli diff base.json asyncapi.json --type=breaking -f json -s breaking.json
+          # asyncapi diff exits 0 even when it finds breaking changes, so check its output.
+          jq -e 'length == 0' breaking.json || { cat breaking.json; exit 1; }
+
+      - name: 4. The frontend still compiles against the spec
+        run: |
+          npm run --prefix web gen
+          npm run --prefix web typecheck

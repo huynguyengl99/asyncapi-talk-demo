@@ -1,0 +1,16 @@
+[project]
+name = "asyncapi-talk-demo"
+version = "0.1.0"
+description = "Demo for the AsyncAPI Conference 2026 talk: typed WebSocket handlers generate an AsyncAPI 3 document that drives docs, clients and CI."
+requires-python = ">=3.11"
+dependencies = [
+  "chanx[fast_channels,client]>=2.11.7",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+]
+
+[dependency-groups]
+dev = ["chanx[cli]>=2.11.7"]
+
+[tool.uv]
+package = false
